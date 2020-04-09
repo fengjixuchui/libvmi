@@ -286,6 +286,9 @@ int is_addr_aligned(
 #  define UNUSED_FUNCTION(x) UNUSED_ ## x
 #endif
 
+void free_gint(gpointer p);
+void free_gint64(gpointer p);
+
 /*-------------------------------------
  * accessors.c
  */
@@ -298,17 +301,6 @@ status_t vmi_pagetable_lookup_cache(
     addr_t dtb,
     addr_t vaddr,
     addr_t *paddr);
-
-/*-----------------------------------------
- * memory.c
- */
-
-#define PSR_MODE_BIT 0x10 // set on cpsr iff ARM32
-
-status_t find_page_mode_live(
-    vmi_instance_t vmi,
-    unsigned long vcpu,
-    page_mode_t *out_pm);
 
 /*-----------------------------------------
  * strmatch.c
