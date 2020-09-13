@@ -212,7 +212,9 @@ typedef enum page_size {
 typedef enum {
     VMI_INIT_DATA_XEN_EVTCHN, /**< Xen file descriptor */
 
-    VMI_INIT_DATA_MEMMAP     /**< memory_map_t pointer */
+    VMI_INIT_DATA_MEMMAP,    /**< memory_map_t pointer */
+
+    VMI_INIT_DATA_KVMI_SOCKET     /**< kvmi socket path */
 } vmi_init_data_type_t;
 
 /**
@@ -810,7 +812,7 @@ status_t vmi_init_complete(
     void *config,
     vmi_init_error_t *error) NOEXCEPT;
 
-/*
+/**
  * Initialize or reinitialize the paging specific functionality of LibVMI
  * required for virtual-to-physical translation.
  *
@@ -826,7 +828,7 @@ page_mode_t vmi_init_paging(
     vmi_instance_t vmi,
     uint64_t flags) NOEXCEPT;
 
-/*
+/**
  * Initialize the OS specific functionality of LibVMI required for functions
  * such as vmi_*_ksym. If the user hasn't called vmi_init_paging yet, this
  * function will do that automatically.
@@ -1900,7 +1902,7 @@ status_t vmi_write_addr_pa(
  * @param[in] length The length (in bytes) of data
  */
 void vmi_print_hex(
-    const char *data,
+    const unsigned char *data,
     unsigned long length) NOEXCEPT;
 
 /**
@@ -2268,12 +2270,7 @@ status_t vmi_get_vcpuregs(
 /**
  * Sets the current value of a VCPU register.  This currently only
  * supports control registers.  When LibVMI is accessing a raw
- * memory file, this function will fail. Operating upon an unpaused
- * vCPU with this function is likely to have unexpected results.
- *
- * On Xen HVM VMs the entire domain must be paused. Using this function in an event
- * callback where only the vCPU is paused will have unexpected results as this
- * function is not multi-vCPU safe.
+ * memory file, this function will fail.
  *
  * @param[in] vmi LibVMI instance
  * @param[in] value Value to assign to the register
@@ -2292,8 +2289,6 @@ status_t vmi_set_vcpureg(
  * a valid value in all registers when calling this function, so the user likely
  * wants to call vmi_get_vcpuregs before calling this function.
  * When LibVMI is accessing a raw memory file or KVM, this function will fail.
- * Operating upon an unpaused VM with this function is likely to have unexpected
- * results.
  *
  * @param[in] vmi LibVMI instance
  * @param[regs] regs The register struct holding the values to be set

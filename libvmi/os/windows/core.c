@@ -86,12 +86,12 @@ win_ver_t pe2version(vmi_instance_t vmi, addr_t kernbase_pa, uint16_t* major, ui
 
     switch (optional_header_type) {
         case IMAGE_PE32_MAGIC:
-            *major=oh32->major_linker_version;
-            *minor=oh32->minor_linker_version;
+            *major=oh32->major_os_version;
+            *minor=oh32->minor_os_version;
             break;
         case IMAGE_PE32_PLUS_MAGIC:
-            *major=oh32plus->major_linker_version;
-            *minor=oh32plus->minor_linker_version;
+            *major=oh32plus->major_os_version;
+            *minor=oh32plus->minor_os_version;
             break;
         default:
             return VMI_OS_WINDOWS_NONE;
@@ -784,8 +784,10 @@ static status_t kpcr_find3(vmi_instance_t vmi, windows_instance_t windows)
     uint32_t int0_high = 0;
     uint16_t int0_low = 0, int0_middle = 0;
 
-    if ( VMI_FAILURE == json_profile_lookup(vmi, "KiDivideErrorFault", NULL, &int0_rva) )
-        return VMI_FAILURE;
+    if ( VMI_FAILURE == json_profile_lookup(vmi, "KiDivideErrorFault", NULL, &int0_rva) ) {
+        if ( VMI_FAILURE == json_profile_lookup(vmi, "KiTrap00", NULL, &int0_rva) )
+            return VMI_FAILURE;
+    }
 
     // Some Windows10+ JSON profiles don't have KiInitialPCR defined so we use the IDT route
     // For the layout of the IDT entry see http://wiki.osdev.org/Interrupt_Descriptor_Table
